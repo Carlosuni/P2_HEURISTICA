@@ -1,7 +1,9 @@
 /**
  * @author Carlos Dumont & Sergio Casado
+ * 
+ * HEURISTICA - PRACTICA 2 - PARTE 1 - PROGRAMA DE SAT
  */
-package parte1_sat;
+package main_parte1_sat;
 
 import fileManagers.FileExtractor;
 import models.Parking;
