@@ -11,6 +11,16 @@ public class Parking {
 		
 	}
 
+	public Parking(String rutaArchivo, int numCalles, int numHuecosCalle, Coche[][] coches, boolean existenBloqueados) {
+		this.rutaArchivo = rutaArchivo;
+		this.numCalles = numCalles;
+		this.numHuecosCalle = numHuecosCalle;
+		this.coches = coches;
+		this.existenBloqueados = existenBloqueados;
+	}
+
+
+
 	public String getRutaArchivoTXT() {
 		return rutaArchivo;
 	}

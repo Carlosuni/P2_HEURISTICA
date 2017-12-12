@@ -11,7 +11,15 @@ public class Coche {
 	private boolean bloqueado;
 	
 	public Coche() {
-		
+			
+	}
+
+	public Coche(int id, int posX, int poY, String categoria, int ordenLlegada) {
+		this.id = id;
+		this.posX = posX;
+		this.poY = poY;
+		this.categoria = categoria;
+		this.ordenLlegada = ordenLlegada;
 	}
 
 	public int getId() {
