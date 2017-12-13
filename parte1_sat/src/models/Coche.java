@@ -4,7 +4,7 @@ public class Coche {
 	private int id;
 	private int posX;
 	private int poY;
-	private String categoria;
+	private char categoria;
 	private int ordenLlegada;
 	private boolean bloqueadoIzda;
 	private boolean bloqueadoDcha;
@@ -14,12 +14,18 @@ public class Coche {
 			
 	}
 
-	public Coche(int id, int posX, int poY, String categoria, int ordenLlegada) {
+	public Coche(int id, int posX, int poY, char categoria, int ordenLlegada) {
 		this.id = id;
 		this.posX = posX;
 		this.poY = poY;
 		this.categoria = categoria;
 		this.ordenLlegada = ordenLlegada;
+	}
+	
+	public Coche(int id, int posX, int poY) {
+		this.id = id;
+		this.posX = posX;
+		this.poY = poY;
 	}
 
 	public int getId() {
@@ -46,11 +52,11 @@ public class Coche {
 		this.poY = poY;
 	}
 
-	public String getCategoria() {
+	public char getCategoria() {
 		return categoria;
 	}
 
-	public void setCategoria(String categoria) {
+	public void setCategoria(char categoria) {
 		this.categoria = categoria;
 	}
 
@@ -85,5 +91,14 @@ public class Coche {
 	public void setBloqueado(boolean bloqueado) {
 		this.bloqueado = bloqueado;
 	}
+
+	@Override
+	public String toString() {
+		return "Coche [id=" + id + ", posX=" + posX + ", poY=" + poY + ", categoria=" + categoria + ", ordenLlegada="
+				+ ordenLlegada + ", bloqueadoIzda=" + bloqueadoIzda + ", bloqueadoDcha=" + bloqueadoDcha
+				+ ", bloqueado=" + bloqueado + "]";
+	}
+	
+	
 	
 }

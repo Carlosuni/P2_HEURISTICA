@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Arrays;
+
 public class Parking {
 	private String rutaArchivo;
 	private int numCalles;
@@ -60,5 +62,17 @@ public class Parking {
 	public void setExistenBloqueados(boolean existenBloqueados) {
 		this.existenBloqueados = existenBloqueados;
 	}
+	
+	public void addCoche(int fila, int columna, Coche coche) {
+		coches[fila][columna] = coche;
+	}
+
+	@Override
+	public String toString() {
+		return "Parking [rutaArchivo=" + rutaArchivo + ", numCalles=" + numCalles + ", numHuecosCalle=" + numHuecosCalle
+				+ ", coches=" + Arrays.toString(coches) + ", existenBloqueados=" + existenBloqueados + "]";
+	}
+	
+	
 	
 }
