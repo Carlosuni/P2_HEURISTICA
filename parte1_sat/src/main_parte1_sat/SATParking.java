@@ -45,43 +45,43 @@ public class SATParking {
 
 
 		/* Creamos las variables binarias */
-		BooleanVar x = new BooleanVar(store, "Hay un agente de seguridad en el nodo x");
-		BooleanVar y = new BooleanVar(store, "Hay un agente de seguridad en el nodo y");
-		BooleanVar z = new BooleanVar(store, "Hay un agente de seguridad en el nodo z");
-		BooleanVar w = new BooleanVar(store, "Hay un agente de seguridad en el nodo w");
+		BooleanVar q = new BooleanVar(store, "Tiene coches de mayor categoria a la derecha");
+		BooleanVar r = new BooleanVar(store, "Tiene coches de mayor categoria a la izquierda");
+		BooleanVar s = new BooleanVar(store, "Tiene coches misma categoria en mayor tiempo");
+		BooleanVar t = new BooleanVar(store, "Tiene coches misma categoria en menor tiempo");
 
 
 		/* Todas las variables: es necesario para el SimpleSelect */
-		BooleanVar[] allVariables = new BooleanVar[]{x, y, z, w};
+		BooleanVar[] allVariables = new BooleanVar[]{q, r, s, t};
 
 
 		/* Registramos las variables en el sat wrapper */
-		satWrapper.register(x);
-		satWrapper.register(y);
-		satWrapper.register(z);
-		satWrapper.register(w);
+		satWrapper.register(q);
+		satWrapper.register(r);
+		satWrapper.register(s);
+		satWrapper.register(t);
 
 
 		/* Obtenemos los literales no negados de las variables */
-		int xLiteral = satWrapper.cpVarToBoolVar(x, 1, true);
-		int yLiteral = satWrapper.cpVarToBoolVar(y, 1, true);
-		int zLiteral = satWrapper.cpVarToBoolVar(z, 1, true);
-		int wLiteral = satWrapper.cpVarToBoolVar(w, 1, true);
+		int xLiteral = satWrapper.cpVarToBoolVar(q, 1, true);
+		int yLiteral = satWrapper.cpVarToBoolVar(r, 1, true);
+		int zLiteral = satWrapper.cpVarToBoolVar(s, 1, true);
+		int wLiteral = satWrapper.cpVarToBoolVar(t, 1, true);
 
 		/* Aristas */
 		/* Por cada arista una clausula de los literales involucrados */
-		addClause(satWrapper, xLiteral, yLiteral);		/* (x v y) */
-		addClause(satWrapper, xLiteral, zLiteral);		/* (x v z) */
-		addClause(satWrapper, yLiteral, zLiteral);		/* (y v z) */
-		addClause(satWrapper, yLiteral, wLiteral);		/* (y v w) */
-		addClause(satWrapper, zLiteral, wLiteral);		/* (z v w) */
+		addClause(satWrapper, -yLiteral, -xLiteral);		/* (-q v -q) */
+		addClause(satWrapper, -wLiteral, -xLiteral);		/* (x v z) */
+		addClause(satWrapper, -yLiteral, -zLiteral);	/* (y v z) */
+		addClause(satWrapper, -wLiteral, -zLiteral);		/* (y v w) */
+		/*addClause(satWrapper, zLiteral, wLiteral);*/		/* (z v w) */
 
 
 		/* Max agentes */
-		addClause(satWrapper, -xLiteral, -yLiteral, -zLiteral);		/* (-x v -y v -z) */
-		addClause(satWrapper, -xLiteral, -yLiteral, -wLiteral);		/* (-x v -y v -w) */
-		addClause(satWrapper, -xLiteral, -zLiteral, -wLiteral);		/* (-x v -z v -w) */
-		addClause(satWrapper, -yLiteral, -zLiteral, -wLiteral);		/* (-y v -z v -w) */
+		/*addClause(satWrapper, -xLiteral, -yLiteral, -zLiteral);*/		/* (-x v -y v -z) */
+		/*addClause(satWrapper, -xLiteral, -yLiteral, -wLiteral);*/		/* (-x v -y v -w) */
+		/*addClause(satWrapper, -xLiteral, -zLiteral, -wLiteral);*/		/* (-x v -z v -w) */
+		/*addClause(satWrapper, -yLiteral, -zLiteral, -wLiteral);*/		/* (-y v -z v -w) */
 
 
 		/* Resolvemos el problema */
