@@ -30,17 +30,86 @@ public class SATParking {
 		System.out.println("\n--= PROGRAMA DE SAT =--\n");
 		FileExtractor fileExtractor = new FileExtractor(args[0]);
 		System.out.println("INFO | Comprobando satisfacibilidad del parking introducido en: " + fileExtractor.getNombreArchivoTXT());
-		Parking parking = null;
+		Parking parking;
 		try {
 			parking = fileExtractor.extraeParking();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(parking.toString());
 		
+		Store store = new Store();
+		SatWrapper satWrapper = new SatWrapper(); 
+		store.impose(satWrapper);					
+		/* Importante: sat problem */
+
+
+		/* Creamos las variables binarias */
+		BooleanVar q = new BooleanVar(store, "Tiene coches de mayor categoria a la derecha");
+		BooleanVar r = new BooleanVar(store, "Tiene coches de mayor categoria a la izquierda");
+		BooleanVar s = new BooleanVar(store, "Tiene coches misma categoria en mayor tiempo");
+		BooleanVar t = new BooleanVar(store, "Tiene coches misma categoria en menor tiempo");
+
+
+		/* Todas las variables: es necesario para el SimpleSelect */
+		BooleanVar[] allVariables = new BooleanVar[]{q, r, s, t};
+
+
+		/* Registramos las variables en el sat wrapper */
+		satWrapper.register(q);
+		satWrapper.register(r);
+		satWrapper.register(s);
+		satWrapper.register(t);
+
+
+		/* Obtenemos los literales no negados de las variables */
+		int xLiteral = satWrapper.cpVarToBoolVar(q, 1, true);
+		int yLiteral = satWrapper.cpVarToBoolVar(r, 1, true);
+		int zLiteral = satWrapper.cpVarToBoolVar(s, 1, true);
+		int wLiteral = satWrapper.cpVarToBoolVar(t, 1, true);
+
+		/* Aristas */
+		/* Por cada arista una clausula de los literales involucrados */
+		addClause(satWrapper, -yLiteral, -xLiteral);		/* (-q v -q) */
+		addClause(satWrapper, -wLiteral, -xLiteral);		/* (x v z) */
+		addClause(satWrapper, -yLiteral, -zLiteral);	/* (y v z) */
+		addClause(satWrapper, -wLiteral, -zLiteral);		/* (y v w) */
+		/*addClause(satWrapper, zLiteral, wLiteral);*/		/* (z v w) */
+
+
+		/* Max agentes */
+		/*addClause(satWrapper, -xLiteral, -yLiteral, -zLiteral);*/		/* (-x v -y v -z) */
+		/*addClause(satWrapper, -xLiteral, -yLiteral, -wLiteral);*/		/* (-x v -y v -w) */
+		/*addClause(satWrapper, -xLiteral, -zLiteral, -wLiteral);*/		/* (-x v -z v -w) */
+		/*addClause(satWrapper, -yLiteral, -zLiteral, -wLiteral);*/		/* (-y v -z v -w) */
+
+
+		/* Resolvemos el problema */
+	    Search<BooleanVar> search = new DepthFirstSearch<BooleanVar>();
+		SelectChoicePoint<BooleanVar> select = new SimpleSelect<BooleanVar>(allVariables,
+							 new SmallestDomain<BooleanVar>(), new IndomainMin<BooleanVar>());
 		
+		Boolean result = search.labeling(store, select);
 		
+		System.out.println(result);
+		
+	}
+	
+	public static void addClause(SatWrapper satWrapper, int literal1, int literal2){
+		IntVec clause = new IntVec(satWrapper.pool);
+		clause.add(literal1);
+		clause.add(literal2);
+		satWrapper.addModelClause(clause.toArray());
+	}
+
+
+	public static void addClause(SatWrapper satWrapper, int literal1, int literal2, int literal3){
+		IntVec clause = new IntVec(satWrapper.pool);
+		clause.add(literal1);
+		clause.add(literal2);
+		clause.add(literal3);
+		satWrapper.addModelClause(clause.toArray());
 	}
 
 }
+
