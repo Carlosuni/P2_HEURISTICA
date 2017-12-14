@@ -30,13 +30,14 @@ public class SATParking {
 		System.out.println("\n--= PROGRAMA DE SAT =--\n");
 		FileExtractor fileExtractor = new FileExtractor(args[0]);
 		System.out.println("INFO | Comprobando satisfacibilidad del parking introducido en: " + fileExtractor.getNombreArchivoTXT());
-		
+		Parking parking = null;
 		try {
-			Parking parking = fileExtractor.extraeParking();
+			parking = fileExtractor.extraeParking();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println(parking.toString());
 		
 		
 		
