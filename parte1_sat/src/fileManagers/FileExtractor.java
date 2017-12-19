@@ -45,16 +45,16 @@ public class FileExtractor {
 		//DE ERRORES, NUMERO DE COLUMNAS IGUAL EN TODAS LAS FILAS ETC.
 		
 		
-		int ids = 0;
+		int ids = 1;
 		
 		//Leemos las dimensiones del coche
 		for (int i = 0; i <= fileLines.size() - 1; i++) {
 			System.out.println(i + " --> " + fileLines.get(i));
 		}
-		newParking.setNumCalles(Integer.parseInt(l1[0]));
-		newParking.setNumHuecosCalle(Integer.parseInt(l1[1]));
+		newParking.setNumCalles(Integer.parseInt(l1[1]));
+		newParking.setNumHuecosCalle(Integer.parseInt(l1[0]));
 		//Creamos las plazas de coche vacías
-		newParking.setPlazasCoche(new PlazaCoche[Integer.parseInt(l1[0])][columnas]);
+		newParking.setPlazasCoche(new PlazaCoche[Integer.parseInt(l1[0])][Integer.parseInt(l1[1])]);
 
 		//Recorremos todas las lineas y palabras del archivo
 		for (int l = 1; l <= newParking.getNumCalles(); l++) {
@@ -73,12 +73,14 @@ public class FileExtractor {
 					newParking.addPlazaVacia(l - 1, c);
 					newParking.getPlaza(l - 1, c).setOcupada(true);
 					//Guardamos el coche en la plaza[l-1][c]
-					newParking.addCoche(l - 1, c, new Coche(ids, l - 1, c, categoria, ordenLlegada));
-					ids = ids++;
+					newParking.addCoche(l - 1, c, new Coche(ids, c, l - 1, categoria, ordenLlegada));
+					ids++;
+					
+					Coche cochePrint = newParking.getPlaza(l - 1, c).getCoche();
+					System.out.println(cochePrint);						
 				} else {
 					//Añade una plaza vacía si es == "__"
 					newParking.addPlazaVacia(l - 1, c);
-					ids = ids++;
 				}
 				
 			}

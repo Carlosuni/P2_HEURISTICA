@@ -75,17 +75,17 @@ public class Parking {
 	/*Devuelve la plaza y sus datos de una posicion concreta del parking*/
 	public PlazaCoche getPlaza(int calle, int columna) {
 		
-		return plazasCoche[calle][columna];
+		return plazasCoche[columna][calle];
 	}
 	
 	/*Añade plza y coche que la ocupa*/
 	public void addCoche(int fila, int columna, Coche coche) {
-		plazasCoche[fila][columna] = new PlazaCoche(true, columna, fila, coche);
+		plazasCoche[columna][fila] = new PlazaCoche(true, columna, fila, coche);
 	}
 
 	/*Añade una plaza vacía sin coche(null)*/
 	public void addPlazaVacia(int fila, int columna) {
-		plazasCoche[fila][columna] = new PlazaCoche(false, columna, fila, null);		
+		plazasCoche[columna][fila] = new PlazaCoche(false, columna, fila, null);		
 	}
 	
 	@Override
@@ -231,61 +231,87 @@ public class Parking {
 		return encontrado;		
 	}
 	
+	
+	/*MÉTODO PRINCIPAL DE EJECUCIÓN DEL SAT (EL QUE JACOP)*/
 	public boolean ejecutaSAT(boolean bloqMayorIzq, boolean bloqOrdenIzq, boolean bloqMayorDer, boolean bloqOrdenDer, Coche cocheEvaluado) {
-			
-		System.out.println("Comprobando SAT con Jacop del coche " + cocheEvaluado.getCategoria() + 
+		
+		long tiempoInicial = System.nanoTime();
+		
+		System.out.println("ESTADO ACTUAL DE BLOQUEOS LATERALES (ANTES DEL SAT)");
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la IZQUIERDA de MAYOR CATEGORÍA = " + bloqMayorIzq);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la DERECHA de MAYOR CATEGORÍA = " + bloqMayorDer);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro a la IZQUIERDA de MISMA CATEGORÍA pero MAYOR ORDEN = " + bloqOrdenIzq);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la DERECHA de MISMA CATEGORÍA pero MAYOR ORDEN = " + bloqOrdenDer);
+		
+		System.out.println("\nComprobando SAT con Jacop del coche " + cocheEvaluado.getCategoria() + 
 				cocheEvaluado.getOrdenLlegada() +" (X = " + cocheEvaluado.getPosX() + ", Y = " + 
 				cocheEvaluado.getPosY() + ")");
-		System.out.println("Resultados de las variables: 1 = SÍ, 0 = NO\n");
+		
+		int numLibreCategIzq = 1;
+		int numLibreCategDer = 1;
+		int numLibreOrdenIzq = 1;
+		int numLibreOrdenDer = 1;		
+		//Valen uno si no está bloqueado según lo comprobado en los métodos anteriores
+		if(bloqMayorIzq)
+			numLibreCategIzq = 0;		
+		if(bloqMayorDer)
+			numLibreCategDer = 0;		
+		if(bloqOrdenIzq)
+			numLibreOrdenIzq = 0;		
+		if(bloqOrdenDer)
+			numLibreOrdenDer = 0;
+		
+		//TODO: BORRAR SYSO INNECESARIO
+		System.out.println("ESTADO ACTUAL DE LOS NUMEROS DEL SAT");
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MAYOR CATEGORÍA = " + numLibreCategIzq);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la DERECHA en cuanto a coches de MAYOR CATEGORÍA = " + numLibreCategDer);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MISMA CATEGORÍA Y MAYOR ORDEN DE LLEGADA = " + numLibreOrdenIzq);
+		
+		System.out.println("\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la DERECHA en cuanto a coches de MISMA CATEGORÍA Y MAYOR ORDEN DE LLEGADA = " + numLibreOrdenDer);
+				
+		System.out.println("Resultados de las variables: 1 = TRUE, 0 = FALSE\n");
 		
 		Store store = new Store();
 		SatWrapper satWrapper = new SatWrapper(); 
 		store.impose(satWrapper);
 		
 		/*Variables binarias del SAT*/
-		BooleanVar mayorCategIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
-				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la IZQUIERDA de MAYOR CATEGORÍA");
-		BooleanVar mayorCategDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
-				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la DERECHA de MAYOR CATEGORÍA");
-		BooleanVar mayorOrdenIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
-				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro a la IZQUIERDA de MISMA CATEGORÍA pero MAYOR ORDEN");
-		BooleanVar mayorOrdenDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
-				cocheEvaluado.getOrdenLlegada() + " está bloqueado por otro otro a la DERECHA de MISMA CATEGORÍA pero MAYOR ORDEN");
+		BooleanVar libreCategIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MAYOR CATEGORÍA");
+		BooleanVar libreCategDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " \" está libre por la DERECHA en cuanto a coches de MAYOR CATEGORÍA");
+		BooleanVar libreOrdenIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MISMA CATEGORÍA Y MAYOR ORDEN DE LLEGADA");
+		BooleanVar libreOrdenDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
+				cocheEvaluado.getOrdenLlegada() + " está libre por la DERECHA en cuanto a coches de MISMA CATEGORÍA Y MAYOR ORDEN DE LLEGADA");
 		
 		/* Todas las variables: es necesario para el SimpleSelect */
-		BooleanVar[] allVariables = new BooleanVar[]{mayorCategIzq, mayorCategDcha, mayorOrdenIzq, mayorOrdenDcha};
+		BooleanVar[] allVariables = new BooleanVar[]{libreCategIzq, libreCategDcha, libreOrdenIzq, libreOrdenDcha};
 		
 		/* Registramos las variables en el sat wrapper */
-		satWrapper.register(mayorCategIzq);
-		satWrapper.register(mayorCategDcha);
-		satWrapper.register(mayorOrdenIzq);
-		satWrapper.register(mayorOrdenDcha);
-		
-		int numCategIzq = 0;
-		int numCategDer = 0;
-		int numOrdenIzq = 0;
-		int numOrdenDer = 0;
-		
-		
-		/*Valen uno si es verdad que está bloqueado según lo comprobado en los métodos anteriores
-		Es decir, prepara los datos para que el SAT pueda leer la situación real (valores 1=no negada, o 0=negada)*/
-		if(bloqMayorIzq)
-			numCategIzq = 1;
-		
-		if(bloqMayorDer)
-			numCategDer = 1;
-		
-		if(bloqOrdenIzq)
-			numOrdenIzq = 1;
-		
-		if(bloqOrdenDer)
-			numOrdenDer = 1;
-			 
+		satWrapper.register(libreCategIzq);
+		satWrapper.register(libreCategDcha);
+		satWrapper.register(libreOrdenIzq);
+		satWrapper.register(libreOrdenDcha);
+					 
 		/* Obtenemos los literales no negados de las variables */
-		int mayorCategIzqLit = satWrapper.cpVarToBoolVar(mayorCategIzq, numCategIzq, true);
-		int mayorCategDerLit = satWrapper.cpVarToBoolVar(mayorCategDcha, numCategDer, true);
-		int mayorOrdenIzqLit = satWrapper.cpVarToBoolVar(mayorOrdenIzq, numOrdenIzq, true);
-		int mayorOrdenDerLit = satWrapper.cpVarToBoolVar(mayorOrdenDcha, numOrdenDer, true);
+		int libreCategIzqLit = satWrapper.cpVarToBoolVar(libreCategIzq, numLibreCategIzq, true);
+		int libreCategDerLit = satWrapper.cpVarToBoolVar(libreCategDcha, numLibreCategDer, true);
+		int libreOrdenIzqLit = satWrapper.cpVarToBoolVar(libreOrdenIzq, numLibreOrdenIzq, true);
+		int libreOrdenDerLit = satWrapper.cpVarToBoolVar(libreOrdenDcha, numLibreOrdenDer, true);
 		
 		/* El problema se va a definir en forma CNF, por lo tanto, tenemos
 		   que añadir una a una todas las clausulas del problema. Cada 
@@ -297,10 +323,10 @@ public class Parking {
 		/* Bloqueos por la izquierda y derecha */
 		/* Cláusulas en CNF que controlan satisfacibilidad dependiendo
 		   de los coches que bloquean lateralmente */
-		addClause(satWrapper, -mayorCategDerLit, -mayorCategIzqLit);	/* (¬r v ¬q) */
-		addClause(satWrapper, -mayorOrdenDerLit, -mayorCategIzqLit);	/* (¬t v ¬q) */
-		addClause(satWrapper, -mayorCategDerLit, -mayorOrdenIzqLit);	/* (¬r v ¬s) */
-		addClause(satWrapper, -mayorOrdenDerLit, -mayorOrdenIzqLit);	/* (¬t v ¬s) */
+		addClause(satWrapper, libreCategIzqLit, libreCategDerLit);	/* C1: (p v q) */
+		addClause(satWrapper, libreCategIzqLit, libreOrdenDerLit);	/* C1: (q v s) */
+		addClause(satWrapper, libreOrdenIzqLit, libreCategDerLit);	/* C1: (r v q) */
+		addClause(satWrapper, libreOrdenIzqLit, libreOrdenDerLit);	/* C1: (r v s) */
 		
 		
 		/* Resolvemos el problema */
@@ -308,32 +334,34 @@ public class Parking {
 		SelectChoicePoint<BooleanVar> select = new SimpleSelect<BooleanVar>(allVariables,
 							 new SmallestDomain<BooleanVar>(), new IndomainMin<BooleanVar>());
 		Boolean resultSAT = search.labeling(store, select);
+		
+		long tiempoEjecucion = System.nanoTime() - tiempoInicial;
 
 		if (resultSAT) {
 			System.out.println("RESULTADO:");
 
-			if(mayorCategIzq.dom().value() == 1){
-				System.out.println(mayorCategIzq.id());
+			if(libreCategIzq.dom().value() == 1){
+				System.out.println(libreCategIzq.id());
 			}
 
-			if(mayorCategDcha.dom().value() == 1){
-				System.out.println(mayorCategDcha.id());
+			if(libreCategDcha.dom().value() == 1){
+				System.out.println(libreCategDcha.id());
 			}
 
-			if(mayorOrdenIzq.dom().value() == 1){
-				System.out.println(mayorOrdenIzq.id());
+			if(libreOrdenIzq.dom().value() == 1){
+				System.out.println(libreOrdenIzq.id());
 			}
 
-			if(mayorOrdenDcha.dom().value() == 1){
-				System.out.println(mayorOrdenDcha.id());
+			if(libreOrdenDcha.dom().value() == 1){
+				System.out.println(libreOrdenDcha.id());
 			}
 		} else{
-			System.out.println("*** COCHE SATISFACIBLE - NO BLOQUEADO***");
+			System.out.println("*** COCHE NO SATISFACIBLE (BLOQUEADO)***");
 		}
-
-		System.out.println();
+		System.out.println("Tiempo de ejecución del SAT para este coche concreto = " + tiempoEjecucion + " nanosegundos");
+		System.out.println(resultSAT);
 		
 		//Tal y como están formuladas las cláusulas y variables, si el SAT da resultado true, el Parking no es satisfacible
-		return !resultSAT;
+		return resultSAT;
 	}			
 }
