@@ -197,9 +197,9 @@ public class Parking {
 	public boolean checkMayorDer(Coche cocheEvaluado) {
 		boolean encontrado = false;
 		//Si el coche no está a la derecha del todo
-		if(cocheEvaluado.getPosX() < this.numHuecosCalle - 1) {
+		if(cocheEvaluado.getPosX() <= this.numHuecosCalle - 1) {
 			//Comprueba en todos los coches que están a la derecha en la misma calle
-			for(int posDer = cocheEvaluado.getPosX() + 1; posDer < this.numHuecosCalle - 1; posDer++) {
+			for(int posDer = cocheEvaluado.getPosX() + 1; posDer <= this.numHuecosCalle - 1; posDer++) {
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el "char" categoría del coche con el que compara es mayor que el del coche que se está evaluando
@@ -218,7 +218,7 @@ public class Parking {
 		//Si el coche no está a la derecha del todo
 		if(cocheEvaluado.getPosX() < this.numHuecosCalle - 1) {
 			//Comprueba en todos los coches que están a la derecha en la misma calle
-			for(int posDer = cocheEvaluado.getPosX() + 1;  posDer < this.numHuecosCalle - 1; posDer++) {
+			for(int posDer = cocheEvaluado.getPosX() + 1;  posDer <= this.numHuecosCalle - 1; posDer++) {
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el int orden de llegada del coche con el que compara es mayor que el del coche que se está evaluando

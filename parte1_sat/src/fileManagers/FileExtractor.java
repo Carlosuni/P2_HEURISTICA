@@ -51,10 +51,10 @@ public class FileExtractor {
 		for (int i = 0; i <= fileLines.size() - 1; i++) {
 			System.out.println(i + " --> " + fileLines.get(i));
 		}
-		newParking.setNumCalles(Integer.parseInt(l1[1]));
-		newParking.setNumHuecosCalle(Integer.parseInt(l1[0]));
+		newParking.setNumCalles(Integer.parseInt(l1[0]));
+		newParking.setNumHuecosCalle(Integer.parseInt(l1[1]));
 		//Creamos las plazas de coche vacías
-		newParking.setPlazasCoche(new PlazaCoche[Integer.parseInt(l1[0])][Integer.parseInt(l1[1])]);
+		newParking.setPlazasCoche(new PlazaCoche[Integer.parseInt(l1[1])][Integer.parseInt(l1[0])]);
 
 		//Recorremos todas las lineas y palabras del archivo
 		for (int l = 1; l <= newParking.getNumCalles(); l++) {
