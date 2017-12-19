@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 public class FileExtractor {
@@ -55,37 +56,54 @@ public class FileExtractor {
 		newParking.setNumHuecosCalle(Integer.parseInt(l1[1]));
 		//Creamos las plazas de coche vacías
 		newParking.setPlazasCoche(new PlazaCoche[Integer.parseInt(l1[1])][Integer.parseInt(l1[0])]);
+		
+		System.out.println("COLUMNAS = " + Integer.parseInt(l1[1]));
+		System.out.println("FILAS = " + Integer.parseInt(l1[0]));
 
-		//Recorremos todas las lineas y palabras del archivo
-		for (int l = 1; l <= newParking.getNumCalles(); l++) {
-			for (int c = 0; c <= fileLines.get(l).split(" ").length - 1; c++) {
-				String[] palabras = fileLines.get(l).split(" ");
+		//Recorremos todas las lineas y palabras del archivo		
+		for (int c = 0; c < newParking.getNumHuecosCalle(); c++) {			
+			int linea = 1;
+			while (linea <= newParking.getNumCalles()) {
+				System.out.println("Extrayendo coche: X=" + c +", Y= " + (linea - 1));	
+				System.out.println(newParking.getNumHuecosCalle());					
+				System.out.println(newParking.getNumCalles());
+				System.out.println("LINEA = " + linea);
+				List<String> auxFileLines = fileLines;
+				String[] palabras = auxFileLines.get(linea).split(" ");
+				System.out.println(Arrays.toString(palabras));
 				
 				//Evalúa si no está vacía (= está ocupada por un coche)
 				//Si fuera otra cosa, ni __ ni coche, saltaría el error de formato
 				if (!palabras[c].equals("__")) {
+					System.out.println("Dentro de if");
+					
+					System.out.println(palabras[c]);
 					//Obtenemos categoría y orden de llegada de los coches
 					char categoria = palabras[c].charAt(0);
 					int ordenLlegada = Character.getNumericValue(palabras[c].charAt(1));
 					/*Ocupamos la plaza[l - 1][c] cuando encontramos coche
 					El "-1" es por descontar la linea inicial
 					con las dimensiones del parking*/
-					newParking.addPlazaVacia(l - 1, c);
-					newParking.getPlaza(l - 1, c).setOcupada(true);
+					newParking.addPlazaVacia(linea - 1, c);
+					newParking.getPlaza(linea - 1, c).setOcupada(true);
+					System.out.println(newParking.getPlaza(linea - 1, c).isOcupada());
 					//Guardamos el coche en la plaza[l-1][c]
-					newParking.addCoche(l - 1, c, new Coche(ids, c, l - 1, categoria, ordenLlegada));
+					newParking.addCoche(linea - 1, c, new Coche(ids, linea - 1, c, categoria, ordenLlegada));
 					ids++;
 					
-					Coche cochePrint = newParking.getPlaza(l - 1, c).getCoche();
+					System.out.println(newParking.getPlaza(linea - 1, c));
+					Coche cochePrint = newParking.getPlaza(linea - 1, c).getCoche();
 					System.out.println(cochePrint);						
 				} else {
 					//Añade una plaza vacía si es == "__"
-					newParking.addPlazaVacia(l - 1, c);
+					newParking.addPlazaVacia(linea - 1, c);
 				}
 				
+				linea++;				
 			}
 		}
 		
+		System.out.println("Acaba bucle");
 		return newParking;
 	}
 

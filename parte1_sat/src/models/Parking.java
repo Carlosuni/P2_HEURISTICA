@@ -88,11 +88,6 @@ public class Parking {
 		plazasCoche[columna][fila] = new PlazaCoche(false, columna, fila, null);		
 	}
 	
-	@Override
-	public String toString() {
-		return "Parking [rutaArchivo=" + rutaArchivo + ", numCalles=" + numCalles + ", numHuecosCalle=" + numHuecosCalle
-				+ ", coches=" + Arrays.toString(plazasCoche) + ", existenBloqueados=" + existenBloqueados + "]";
-	}
 	
 	/*Comprueba si el Parking es satisfacible y devuelve true en ese caso*/
 	public boolean checkParkingSAT() {
@@ -116,32 +111,31 @@ public class Parking {
 		return !this.existenBloqueados;	
 	}
 	
-	/*Añade las cláusulas necesarias a partir de los literales*/
-	public static void addClause(SatWrapper satWrapper, int literal1, int literal2){
-		IntVec clause = new IntVec(satWrapper.pool);
-		clause.add(literal1);
-		clause.add(literal2);
-		satWrapper.addModelClause(clause.toArray());
-	}
-	
 	//Comprueba la SAT de un coche vs todos los demás coche, es decir, uno a uno si le bloquea
 	public boolean checkCarSAT(Coche cocheEvaluado) {
-		//Comprobamos si tiene bloque de algún tipo por la izquierda
-		boolean bloqMayorIzq = checkMayorIzq(cocheEvaluado);
-		boolean bloqOrdenIzq = checkOrdenIzq(cocheEvaluado);
-		//Actualizo los valores izq en los objetos Coche
-		if(bloqMayorIzq || bloqOrdenIzq)
-			cocheEvaluado.setBloqueadoIzda(true);
 		
-		//Comprobamos si tiene bloque de algún tipo por la derecha
-		boolean bloqMayorDer = checkMayorDer(cocheEvaluado);
-		boolean bloqOrdenDer = checkOrdenDer(cocheEvaluado);
-		//Actualizo los valores der en los objetos Coche
-		if(bloqMayorDer || bloqOrdenDer)
-			cocheEvaluado.setBloqueadoDcha(true);
+		boolean bloqMayorIzq = false;
+		boolean bloqOrdenIzq = false;
+		boolean bloqMayorDer = false;;
+		boolean bloqOrdenDer = false;
 		
-		if(cocheEvaluado.isBloqueadoIzda() || cocheEvaluado.isBloqueadoDcha())
-			cocheEvaluado.setBloqueado(true);
+			//Comprobamos si tiene bloque de algún tipo por la izquierda
+			bloqMayorIzq = checkMayorIzq(cocheEvaluado);
+			bloqOrdenIzq = checkOrdenIzq(cocheEvaluado);
+			//Actualizo los valores izq en los objetos Coche
+			if(bloqMayorIzq || bloqOrdenIzq)
+				cocheEvaluado.setBloqueadoIzda(true);
+			
+			//Comprobamos si tiene bloque de algún tipo por la derecha
+			bloqMayorDer = checkMayorDer(cocheEvaluado);
+			bloqOrdenDer = checkOrdenDer(cocheEvaluado);
+			//Actualizo los valores der en los objetos Coche
+			if(bloqMayorDer || bloqOrdenDer)
+				cocheEvaluado.setBloqueadoDcha(true);
+			
+			if(cocheEvaluado.isBloqueadoIzda() || cocheEvaluado.isBloqueadoDcha())
+				cocheEvaluado.setBloqueado(true);
+		
 		
 		//Almacenaré y devolveré el resultado del SAT que me dé de ese coche
 		boolean resultadoSAT = false;
@@ -181,6 +175,7 @@ public class Parking {
 		if(cocheEvaluado.getPosX() > 0) {
 			//Comprueba en todos los coches que están a la izquierda en la misma calle
 			for(int posIzq = cocheEvaluado.getPosX() - 1; posIzq >= 0; posIzq--) {
+				//System.out.println(this.plazasCoche[posIzq][cocheEvaluado.getPosY()]);
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posIzq][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el int orden de llegada del coche con el que compara es mayor que el del coche que se está evaluando
@@ -197,13 +192,16 @@ public class Parking {
 	public boolean checkMayorDer(Coche cocheEvaluado) {
 		boolean encontrado = false;
 		//Si el coche no está a la derecha del todo
-		if(cocheEvaluado.getPosX() <= this.numHuecosCalle - 1) {
+		if(cocheEvaluado.getPosX() < this.numHuecosCalle - 1) {
 			//Comprueba en todos los coches que están a la derecha en la misma calle
 			for(int posDer = cocheEvaluado.getPosX() + 1; posDer <= this.numHuecosCalle - 1; posDer++) {
+				//System.out.println(cocheEvaluado.getPosY());
+				//System.out.println(this.plazasCoche[posDer][cocheEvaluado.getPosY()]);
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el "char" categoría del coche con el que compara es mayor que el del coche que se está evaluando
 					if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].getCoche().getCategoria() > cocheEvaluado.getCategoria()) {
+						
 						encontrado = true;
 					}
 				}			
@@ -257,7 +255,8 @@ public class Parking {
 		int numLibreCategIzq = 1;
 		int numLibreCategDer = 1;
 		int numLibreOrdenIzq = 1;
-		int numLibreOrdenDer = 1;		
+		int numLibreOrdenDer = 1;	
+		
 		//Valen uno si no está bloqueado según lo comprobado en los métodos anteriores
 		if(bloqMayorIzq)
 			numLibreCategIzq = 0;		
@@ -292,7 +291,7 @@ public class Parking {
 		BooleanVar libreCategIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
 				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MAYOR CATEGORÍA");
 		BooleanVar libreCategDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
-				cocheEvaluado.getOrdenLlegada() + " \" está libre por la DERECHA en cuanto a coches de MAYOR CATEGORÍA");
+				cocheEvaluado.getOrdenLlegada() + " está libre por la DERECHA en cuanto a coches de MAYOR CATEGORÍA");
 		BooleanVar libreOrdenIzq = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
 				cocheEvaluado.getOrdenLlegada() + " está libre por la IZQUIERDA en cuanto a coches de MISMA CATEGORÍA Y MAYOR ORDEN DE LLEGADA");
 		BooleanVar libreOrdenDcha = new BooleanVar(store, "\nEl coche " + cocheEvaluado.getCategoria() +
@@ -324,9 +323,9 @@ public class Parking {
 		/* Cláusulas en CNF que controlan satisfacibilidad dependiendo
 		   de los coches que bloquean lateralmente */
 		addClause(satWrapper, libreCategIzqLit, libreCategDerLit);	/* C1: (p v q) */
-		addClause(satWrapper, libreCategIzqLit, libreOrdenDerLit);	/* C1: (q v s) */
-		addClause(satWrapper, libreOrdenIzqLit, libreCategDerLit);	/* C1: (r v q) */
-		addClause(satWrapper, libreOrdenIzqLit, libreOrdenDerLit);	/* C1: (r v s) */
+		addClause(satWrapper, libreCategIzqLit, libreOrdenDerLit);	/* C2: (p v s) */
+		addClause(satWrapper, libreOrdenIzqLit, libreCategDerLit);	/* C3: (r v q) */
+		addClause(satWrapper, libreOrdenIzqLit, libreOrdenDerLit);	/* C4: (r v s) */
 		
 		
 		/* Resolvemos el problema */
@@ -363,5 +362,21 @@ public class Parking {
 		
 		//Tal y como están formuladas las cláusulas y variables, si el SAT da resultado true, el Parking no es satisfacible
 		return resultSAT;
-	}			
+	}
+	
+	/*Añade las cláusulas necesarias a partir de los literales*/
+	public static void addClause(SatWrapper satWrapper, int literal1, int literal2){
+		IntVec clause = new IntVec(satWrapper.pool);
+		clause.add(literal1);
+		clause.add(literal2);
+		satWrapper.addModelClause(clause.toArray());
+	}
+
+	@Override
+	public String toString() {
+		return "Parking [rutaArchivo=" + rutaArchivo + ", numCalles=" + numCalles + ", numHuecosCalle=" + numHuecosCalle
+				+ ", plazasCoche=" + Arrays.toString(plazasCoche) + ", existenBloqueados=" + existenBloqueados + "]";
+	}		
+	
+	
 }

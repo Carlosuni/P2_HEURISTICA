@@ -10,7 +10,7 @@ public class PlazaCoche {
 	
 	
 	public PlazaCoche() {
-		super();
+		this.ocupada = false;
 	}
 
 	public PlazaCoche(boolean ocupada, int posX, int posY, Coche coche) {
@@ -52,6 +52,12 @@ public class PlazaCoche {
 	public void setCoche(Coche coche) {
 		this.coche = coche;
 	}
+
+	@Override
+	public String toString() {
+		return "PlazaCoche [ocupada=" + ocupada + ", posX=" + posX + ", posY=" + posY + ", coche=" + coche + "]";
+	}
+	
 	
 	
 }
