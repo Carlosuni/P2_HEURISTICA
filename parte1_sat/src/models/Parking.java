@@ -179,7 +179,7 @@ public class Parking {
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posIzq][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el int orden de llegada del coche con el que compara es mayor que el del coche que se está evaluando
-					if(this.plazasCoche[posIzq][cocheEvaluado.getPosY()].getCoche().getOrdenLlegada() > cocheEvaluado.getOrdenLlegada()) {
+					if(this.plazasCoche[posIzq][cocheEvaluado.getPosY()].getCoche().getOrdenLlegada() > cocheEvaluado.getOrdenLlegada() && this.plazasCoche[posIzq][cocheEvaluado.getPosY()].getCoche().getCategoria() == cocheEvaluado.getCategoria()) {
 						encontrado = true;
 					}
 				}			
@@ -220,7 +220,7 @@ public class Parking {
 				//Comprueba sólo con las plazas ocupadas por coches
 				if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].isOcupada()) {
 					//Compara si el int orden de llegada del coche con el que compara es mayor que el del coche que se está evaluando
-					if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].getCoche().getOrdenLlegada() > cocheEvaluado.getOrdenLlegada()) {
+					if(this.plazasCoche[posDer][cocheEvaluado.getPosY()].getCoche().getOrdenLlegada() > cocheEvaluado.getOrdenLlegada() && this.plazasCoche[posDer][cocheEvaluado.getPosY()].getCoche().getCategoria() == cocheEvaluado.getCategoria()) {
 						encontrado = true;
 					}
 				}			
@@ -259,13 +259,13 @@ public class Parking {
 		
 		//Valen uno si no está bloqueado según lo comprobado en los métodos anteriores
 		if(bloqMayorIzq)
-			numLibreCategIzq = 0;		
+			numLibreCategIzq = -1;		
 		if(bloqMayorDer)
-			numLibreCategDer = 0;		
+			numLibreCategDer = -1;		
 		if(bloqOrdenIzq)
-			numLibreOrdenIzq = 0;		
+			numLibreOrdenIzq = -1;		
 		if(bloqOrdenDer)
-			numLibreOrdenDer = 0;
+			numLibreOrdenDer = -1;
 		
 		//TODO: BORRAR SYSO INNECESARIO
 		System.out.println("ESTADO ACTUAL DE LOS NUMEROS DEL SAT");
@@ -307,10 +307,10 @@ public class Parking {
 		satWrapper.register(libreOrdenDcha);
 					 
 		/* Obtenemos los literales no negados de las variables */
-		int libreCategIzqLit = satWrapper.cpVarToBoolVar(libreCategIzq, numLibreCategIzq, true);
-		int libreCategDerLit = satWrapper.cpVarToBoolVar(libreCategDcha, numLibreCategDer, true);
-		int libreOrdenIzqLit = satWrapper.cpVarToBoolVar(libreOrdenIzq, numLibreOrdenIzq, true);
-		int libreOrdenDerLit = satWrapper.cpVarToBoolVar(libreOrdenDcha, numLibreOrdenDer, true);
+		int libreCategIzqLit = satWrapper.cpVarToBoolVar(libreCategIzq, 1, true);
+		int libreCategDerLit = satWrapper.cpVarToBoolVar(libreCategDcha, 1, true);
+		int libreOrdenIzqLit = satWrapper.cpVarToBoolVar(libreOrdenIzq, 1, true);
+		int libreOrdenDerLit = satWrapper.cpVarToBoolVar(libreOrdenDcha, 1, true);
 		
 		/* El problema se va a definir en forma CNF, por lo tanto, tenemos
 		   que añadir una a una todas las clausulas del problema. Cada 
@@ -326,6 +326,12 @@ public class Parking {
 		addClause(satWrapper, libreCategIzqLit, libreOrdenDerLit);	/* C2: (p v s) */
 		addClause(satWrapper, libreOrdenIzqLit, libreCategDerLit);	/* C3: (r v q) */
 		addClause(satWrapper, libreOrdenIzqLit, libreOrdenDerLit);	/* C4: (r v s) */
+		
+		addClause(satWrapper, (libreCategIzqLit * numLibreCategIzq));	/* C4aux: (p=1 si libre, -1 si bloqueado) */
+		addClause(satWrapper, (libreCategDerLit * numLibreCategDer));	/* C5aux: (q=1 si libre, -1 si bloqueado) */
+		addClause(satWrapper, (libreOrdenIzqLit * numLibreOrdenIzq));	/* C6aux: (r=1 si libre, -1 si bloqueado) */
+		addClause(satWrapper, (libreOrdenDerLit * numLibreOrdenDer));	/* C7aux: (s=1 si libre, -1 si bloqueado) */
+		
 		
 		
 		/* Resolvemos el problema */
@@ -369,6 +375,12 @@ public class Parking {
 		IntVec clause = new IntVec(satWrapper.pool);
 		clause.add(literal1);
 		clause.add(literal2);
+		satWrapper.addModelClause(clause.toArray());
+	}
+	
+	public static void addClause(SatWrapper satWrapper, int literal){
+		IntVec clause = new IntVec(satWrapper.pool);
+		clause.add(literal);
 		satWrapper.addModelClause(clause.toArray());
 	}
 

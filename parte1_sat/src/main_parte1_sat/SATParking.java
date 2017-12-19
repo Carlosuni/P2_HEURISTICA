@@ -45,6 +45,9 @@ public class SATParking {
 			System.out.println("¡BIEN! EL PARKING ES SATISFACIBLE");	
 		else
 			System.out.println("¡MAL! EL PARKING NO ES SATISFACIBLE");
+		
+		
+		
 	}
 }
 
