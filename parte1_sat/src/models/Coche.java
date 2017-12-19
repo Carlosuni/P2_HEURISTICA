@@ -1,31 +1,33 @@
 package models;
 
+/*Representa los objetos Coche situados en las PlazasCoche[][] del objeto Parking*/
 public class Coche {
 	private int id;
 	private int posX;
-	private int poY;
+	private int posY;
 	private char categoria;
 	private int ordenLlegada;
 	private boolean bloqueadoIzda;
 	private boolean bloqueadoDcha;
 	private boolean bloqueado;
 	
+	
 	public Coche() {
 			
 	}
 
-	public Coche(int id, int posX, int poY, char categoria, int ordenLlegada) {
+	public Coche(int id, int posY, int posX, char categoria, int ordenLlegada) {
 		this.id = id;
+		this.posY = posY;
 		this.posX = posX;
-		this.poY = poY;
 		this.categoria = categoria;
 		this.ordenLlegada = ordenLlegada;
 	}
 	
-	public Coche(int id, int posX, int poY) {
+	public Coche(int id, int posX, int posY) {
 		this.id = id;
 		this.posX = posX;
-		this.poY = poY;
+		this.posY = posY;
 	}
 
 	public int getId() {
@@ -44,12 +46,12 @@ public class Coche {
 		this.posX = posX;
 	}
 
-	public int getPoY() {
-		return poY;
+	public int getPosY() {
+		return posY;
 	}
 
 	public void setPoY(int poY) {
-		this.poY = poY;
+		this.posY = posY;
 	}
 
 	public char getCategoria() {
@@ -94,7 +96,7 @@ public class Coche {
 
 	@Override
 	public String toString() {
-		return "Coche [id=" + id + ", posX=" + posX + ", poY=" + poY + ", categoria=" + categoria + ", ordenLlegada="
+		return "Coche [id=" + id + ", posX=" + posX + ", posY=" + posY + ", categoria=" + categoria + ", ordenLlegada="
 				+ ordenLlegada + ", bloqueadoIzda=" + bloqueadoIzda + ", bloqueadoDcha=" + bloqueadoDcha
 				+ ", bloqueado=" + bloqueado + "]";
 	}
